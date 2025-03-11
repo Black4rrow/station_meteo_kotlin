@@ -19,15 +19,22 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import kotlin.math.cos
 import kotlin.math.sin
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.station_meteo.ViewModel.DatabaseViewModel
+import com.example.station_meteo.model.WeatherReport
 
 @Composable
-fun Home(navController: NavController) {
+fun Home(navController: NavController, databaseViewModel: DatabaseViewModel = viewModel()) {
     val progressColors = listOf(
         Color(0xFFFF0000),
         Color(0xFFFFA500),
         Color(0xFFFFFF00),
         Color(0xFF00FF00),
     )
+      val weatherReports = databaseViewModel.weatherReports.observeAsState(initial = emptyList())
 
     Text("Home")
     Column(
@@ -43,9 +50,20 @@ fun Home(navController: NavController) {
                 progressColors = progressColors,
                 Color.Black
             )
+              LazyColumn {
+        items(weatherReports.value) { report ->
+            WeatherReportItem(report)
+
         }
     }
 }
+
+
+
+
+  
+
+  
 
 @Composable
 fun Gauge(value: Float, trackColor: Color, progressColors: List<Color>, needle: Color) {
@@ -115,4 +133,12 @@ fun Gauge(value: Float, trackColor: Color, progressColors: List<Color>, needle: 
             path = needlePath
         )
     }
+
+fun WeatherReportItem(report: WeatherReport) {
+    Text(
+        text = "Température : ${report.temperature}°C\n" +
+                "Humidité : ${report.humidity}%\n" +
+                "CO2 : ${report.co2} ppm\n" +
+                "Date : ${report.reportDate}"
+    )
 }
