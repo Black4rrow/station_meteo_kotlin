@@ -22,9 +22,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.example.station_meteo.VIewModel.UserViewModel
+import com.example.station_meteo.ViewModel.UserViewModel
 import com.example.station_meteo.View.connection.Account
-import com.example.station_meteo.View.connection.Login
 import com.example.station_meteo.model.NavItem
 
 @Composable
