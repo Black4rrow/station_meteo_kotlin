@@ -1,4 +1,4 @@
-package com.example.station_meteo.VIewModel
+package com.example.station_meteo.ViewModel
 
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
