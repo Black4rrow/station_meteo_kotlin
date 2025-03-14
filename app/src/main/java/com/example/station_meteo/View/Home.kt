@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -56,7 +55,11 @@ import kotlin.math.sin
 
 @SuppressLint("NewApi")
 @Composable
-fun Home(navController: NavController, databaseViewModel: DatabaseViewModel = viewModel(),notificationViewModel: NotificationViewModel = viewModel()) {
+fun Home(
+    navController: NavController,
+    databaseViewModel: DatabaseViewModel = viewModel(),
+    notificationViewModel: NotificationViewModel = viewModel()
+) {
     val progressColors = listOf(
         Color(0xFFADD8E6),
         Color(0xFF87CEEB),
@@ -69,6 +72,8 @@ fun Home(navController: NavController, databaseViewModel: DatabaseViewModel = vi
     val latestHumidity = weatherReports.value.maxByOrNull { it.reportDate }?.humidity ?: 0.0f
     val latestTemperature = weatherReports.value.maxByOrNull { it.reportDate }?.temperature ?: 0.0f
     val latestCo2 = weatherReports.value.maxByOrNull { it.reportDate }?.co2 ?: 0.0f
+    val lightLevel = weatherReports.value.maxByOrNull { it.reportDate }?.lightLevel ?: 0.0f
+
 
 
     Column(
@@ -77,7 +82,7 @@ fun Home(navController: NavController, databaseViewModel: DatabaseViewModel = vi
             .padding(top = 16.dp, bottom = 80.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.size(100.dp))
+        Spacer(modifier = Modifier.size(50.dp))
         Box(
             modifier = Modifier.size(200.dp)
         ) {
@@ -94,20 +99,39 @@ fun Home(navController: NavController, databaseViewModel: DatabaseViewModel = vi
             Column(
                 modifier = Modifier
                     .padding(start = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                verticalArrangement = Arrangement.SpaceBetween
             )
             {
-                Image(
-                    painter = painterResource(id = R.drawable.co2cloud),
-                    contentDescription = "Co2 Cloud Image",
-                    modifier = Modifier.size(128.dp)
-                )
-                Text(
-                    text = "${latestCo2.toInt()} PPM",
-                    fontSize = 32.sp,
-                    lineHeight = 24.sp,
-                    color = Color.Black
-                )
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.co2cloud),
+                        contentDescription = "Co2 Cloud Image",
+                        modifier = Modifier.size(128.dp)
+                    )
+                    Text(
+                        text = "${latestCo2.toInt()} PPM",
+                        fontSize = 32.sp,
+                        lineHeight = 24.sp,
+                        color = Color.Black
+                    )
+                }
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.brightness),
+                        contentDescription = "brightness Image",
+                        modifier = Modifier.size(128.dp)
+                    )
+                    Text(
+                        text = "${lightLevel.toInt()} Lx",
+                        fontSize = 32.sp,
+                        lineHeight = 24.sp,
+                        color = Color.Black
+                    )
+                }
             }
 
             Row(
@@ -138,7 +162,12 @@ fun Home(navController: NavController, databaseViewModel: DatabaseViewModel = vi
         Box() {
             if (latestCo2 > 6000)
                 BlinkingImage(painterResource(id = R.drawable.alert))
-            MonitorCO2(latestCo2.toInt(),notificationViewModel,"Alert !","Warning, please leave the room.")
+            MonitorCO2(
+                latestCo2.toInt(),
+                notificationViewModel,
+                "Alert !",
+                "Warning, please leave the room."
+            )
         }
     }
 }
@@ -273,9 +302,20 @@ fun BlinkingImage(painter: Painter) {
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
-fun MonitorCO2(co2Value: Int,notificationViewModel : NotificationViewModel,title: String,message: String) {
+fun MonitorCO2(
+    co2Value: Int,
+    notificationViewModel: NotificationViewModel,
+    title: String,
+    message: String
+) {
     val context = LocalContext.current
-    var hasPermission by remember { mutableStateOf(notificationViewModel.checkNotificationPermission(context)) }
+    var hasPermission by remember {
+        mutableStateOf(
+            notificationViewModel.checkNotificationPermission(
+                context
+            )
+        )
+    }
     var notificationSent by remember { mutableStateOf(false) }
 
     val requestPermissionLauncher =
@@ -286,7 +326,7 @@ fun MonitorCO2(co2Value: Int,notificationViewModel : NotificationViewModel,title
     LaunchedEffect(co2Value) {
         if (co2Value > 6000 && !notificationSent) {
             if (hasPermission) {
-                notificationViewModel.showNotification(context,title,message)
+                notificationViewModel.showNotification(context, title, message)
                 notificationSent = true
             } else {
                 requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
