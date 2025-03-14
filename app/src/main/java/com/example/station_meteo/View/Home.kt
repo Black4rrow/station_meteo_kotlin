@@ -1,5 +1,11 @@
 package com.example.station_meteo.View
 
+import android.Manifest
+import android.annotation.SuppressLint
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -13,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -34,6 +41,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -41,12 +49,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.station_meteo.R
 import com.example.station_meteo.ViewModel.DatabaseViewModel
+import com.example.station_meteo.ViewModel.NotificationViewModel
 import kotlinx.coroutines.delay
 import kotlin.math.cos
 import kotlin.math.sin
 
+@SuppressLint("NewApi")
 @Composable
-fun Home(navController: NavController, databaseViewModel: DatabaseViewModel = viewModel()) {
+fun Home(navController: NavController, databaseViewModel: DatabaseViewModel = viewModel(),notificationViewModel: NotificationViewModel = viewModel()) {
     val progressColors = listOf(
         Color(0xFFADD8E6),
         Color(0xFF87CEEB),
@@ -128,6 +138,7 @@ fun Home(navController: NavController, databaseViewModel: DatabaseViewModel = vi
         Box() {
             if (latestCo2 > 6000)
                 BlinkingImage(painterResource(id = R.drawable.alert))
+            MonitorCO2(latestCo2.toInt(),notificationViewModel,"Alert !","Warning, please leave the room.")
         }
     }
 }
@@ -257,4 +268,31 @@ fun BlinkingImage(painter: Painter) {
         )
     }
 
+}
+
+
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+@Composable
+fun MonitorCO2(co2Value: Int,notificationViewModel : NotificationViewModel,title: String,message: String) {
+    val context = LocalContext.current
+    var hasPermission by remember { mutableStateOf(notificationViewModel.checkNotificationPermission(context)) }
+    var notificationSent by remember { mutableStateOf(false) }
+
+    val requestPermissionLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            hasPermission = isGranted
+        }
+
+    LaunchedEffect(co2Value) {
+        if (co2Value > 1000 && !notificationSent) {
+            if (hasPermission) {
+                notificationViewModel.showNotification(context,title,message)
+                notificationSent = true
+            } else {
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        } else if (co2Value <= 6000) {
+            notificationSent = false
+        }
+    }
 }
