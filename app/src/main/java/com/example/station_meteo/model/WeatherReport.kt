@@ -1,6 +1,7 @@
 package com.example.station_meteo.model
 
 import com.google.firebase.Timestamp
+import com.google.firebase.database.PropertyName
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -9,7 +10,8 @@ data class WeatherReport (
     val co2: Float = 0.0f,
     val gas: Float = 0.0f,
     val humidity: Float = 0.0f,
-    val light: Float = 0.0f,
+    @get:PropertyName("light_level") @set:PropertyName("light_level")
+    var lightLevel: Float = 0.0f,
     val pressure: Float = 0.0f,
     val reportDate: Long = 0L,
     val temperature: Float = 0.0f,
