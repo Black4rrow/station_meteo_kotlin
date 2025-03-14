@@ -11,6 +11,7 @@ class DatabaseViewModel : ViewModel() {
     private val _weatherReports = MutableLiveData<List<WeatherReport>>()
     val weatherReports: LiveData<List<WeatherReport>> get() = _weatherReports
 
+
     private val databaseReference: DatabaseReference =
         FirebaseDatabase.getInstance().getReference("measure")
 
