@@ -284,7 +284,7 @@ fun MonitorCO2(co2Value: Int,notificationViewModel : NotificationViewModel,title
         }
 
     LaunchedEffect(co2Value) {
-        if (co2Value > 1000 && !notificationSent) {
+        if (co2Value > 6000 && !notificationSent) {
             if (hasPermission) {
                 notificationViewModel.showNotification(context,title,message)
                 notificationSent = true
