@@ -1,8 +1,10 @@
 package com.example.station_meteo.View
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
@@ -10,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.station_meteo.ViewModel.DatabaseViewModel
@@ -25,7 +28,7 @@ fun Result(navController: NavController, databaseViewModel: DatabaseViewModel = 
     Column(
         Modifier
             .fillMaxSize()
-            .padding(bottom = 80.dp)
+            .padding(bottom = 80.dp, start = 8.dp, end = 8.dp)
             .verticalScroll(rememberScrollState()),
     ) {
         /*
@@ -36,8 +39,16 @@ fun Result(navController: NavController, databaseViewModel: DatabaseViewModel = 
         }
 
          */
+        Spacer(modifier = Modifier.size(16.dp))
+
+        Text("History of measures",  fontSize = 32.sp,)
+
+        Spacer(modifier = Modifier.size(16.dp))
+
+        Text("Last 6 min",  fontSize = 24.sp,modifier = Modifier.padding(start = 24.dp))
+
         AddDefaultLineChart(weatherReports.value.map { (Math.round(it.temperature * 100) / 100f) }
-            , "Température"," °C",40)
+            , "Temperature"," °C",40)
 
         AddDefaultLineChart(weatherReports.value.map { (Math.round(it.co2 * 100) / 100f) }
             , "CO2"," PPM",40)
@@ -47,6 +58,12 @@ fun Result(navController: NavController, databaseViewModel: DatabaseViewModel = 
 
         AddDefaultLineChart(weatherReports.value.map { (Math.round(it.lightLevel)).toFloat() }
             , "Light"," lux",40)
+
+        AddDefaultLineChart(weatherReports.value.map { (Math.round(it.gas)).toFloat() }
+            , "Gas"," jsp",40)
+
+        AddDefaultLineChart(weatherReports.value.map { (Math.round(it.pressure)).toFloat() }
+            , "Pressure"," jsp",40)
     }
 }
 
